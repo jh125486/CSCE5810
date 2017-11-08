@@ -18,7 +18,7 @@ sub new {
     my $self = {};
     $self->{_parent1} = $args{parent1};
     $self->{_parent2} = $args{parent2};
-    $self->{_attributes} = $args{attributes};
+    $self->{_genes} = $args{genes};
     $self->{_male} = int rand(2); # XXX set sex outside of constructor
     if (!defined $self->{_parent1}) {
         $self->{_generation} = 1;
@@ -40,9 +40,9 @@ sub generation {
     return $self->{_generation};
 }
 
-sub attributes {
+sub genes {
     my $self = shift;
-    return $self->{_attributes};
+    return $self->{_genes};
 }
 
 sub compatible {
@@ -59,7 +59,8 @@ sub printInfo {
     my $self = shift;
     print "Generation: ". $self->generation . "\n";
     print "Sex: " . $self->sex . "\n";
-#    print "Phenotype: " . $self->attributes . "\n";
+
+    #    print "Phenotype: " . $self->genes . "\n";
     print "\n";
 }
 

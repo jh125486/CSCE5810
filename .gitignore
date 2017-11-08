@@ -33,3 +33,8 @@ inc/
 /MANIFEST.bak
 /pm_to_blib
 /*.zip
+
+.vstags
+.idea/
+perl_project.iml
+_Deparsed_XSubs.pm

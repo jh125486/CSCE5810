@@ -9,7 +9,7 @@ use Data::Dumper;
 
 sub new {
     my $class = shift;
-    my $chromosome = shift;
+    my $name = shift;
     my @alleles = @_;
 
     my @codes;
@@ -23,7 +23,7 @@ sub new {
     }
 
     my $self = {
-        _chromosome => $chromosome,
+        _name => $name,
         _genotype => join('', sort(@codes)),
         _phenotype => $phenotype,
     };
@@ -43,14 +43,17 @@ sub genotype {
     return $self->{_genotype};
 }
 
-sub chromosome {
-    my $self = shift;
-    return $self->{_chromosome};
-}
-
 sub phenotype {
     my $self = shift;
    return $self->{_phenotype};
+}
+
+sub printInfo {
+    my $self = shift;
+    print $self->{_name} . ": " . $self->genotype . "\t";
+    print "genes: " . scalar @{$self->alleles} . "\t";
+    print "phenotype: " . $self->phenotype->code . " [" . $self->phenotype->phenotype . "]\n\n";
+
 }
 
 1;
