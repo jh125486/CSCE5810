@@ -52,7 +52,7 @@ sub printInfo {
     my $self = shift;
     print $self->{_name} . ": " . $self->genotype . "\t";
     print "genes: " . scalar @{$self->alleles} . "\t";
-    print "phenotype: " . $self->phenotype->code . " [" . $self->phenotype->phenotype . "]\n\n";
+    print "phenotype: " . $self->phenotype->code . " [" . $self->phenotype->phenotype . "]\n";
 
 }
 
