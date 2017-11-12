@@ -6,7 +6,7 @@ use Allele;
 
 use constant {
     F0_POPULATION   => 20,
-    MAX_GENERATIONS => 2,
+    MAX_GENERATIONS => 3,
 };
 
 # Genes for eyes and wings
@@ -15,7 +15,7 @@ my $white_eyes  = Allele->new( "w", "white",     Allele::RECESSIVE );
 my $long_wings  = Allele->new( "V", "long",      Allele::DOMINANT );
 my $short_wings = Allele->new( "v", "vestigial", Allele::RECESSIVE );
 
-my (@population, @males, @females);
+my (@population, @males, @females, $alive, $dead);
 
 # create initial population, 50% chance of male or female
 for ( my $c = 0 ; $c < F0_POPULATION ; $c++ ) {
@@ -36,6 +36,7 @@ print "Each mating produces between " . Fly::MAX_EGGS . " and " . Fly::MIN_EGGS 
 print "Larvae hatch during the same generation and are sexual mature the next generation.\n";
 print "Each egg has 50% chance of becoming male or female.\n";
 print "Flies can live a maximum of " . Fly::MAX_LIFE . " generations.\n";
+print "Observed phenotypes include dead flies\n";
 print "Enter percentage of population that mates during a generation: ";
 my $mating_percentage = ( <STDIN> / 100 );
 
@@ -66,10 +67,10 @@ for ( my $c = $short_wing_flies ; $c < scalar(@flies) ; $c++ ) {
 }
 
 my $generation = 0;
-for ( ; $generation <= MAX_GENERATIONS ; $generation++ ) {
-    print "-" x 80 . "\n";
-    @population = ( @males, @females );
-    my $matings = populationInfo();
+for ( ; $generation < MAX_GENERATIONS ; $generation++ ) {
+    observePopulation();
+    my $matings = matingInfo();
+    observePhenotypes();
 
     for ( my $c = $matings ; $c > 0 ; $c-- ) {
         my Fly $male = @males[ int rand( scalar(@males) ) ];
@@ -83,20 +84,27 @@ for ( ; $generation <= MAX_GENERATIONS ; $generation++ ) {
     }
 
     for my $fly (@population) { $fly->age }
-
-    observePhenotypes();
 }
 
-sub populationInfo {
-    my ( $alive, $dead ) = ( 0, 0 );
-    for my $fly (@population) { $fly->alive ? $alive++ : $dead++ }
-    my $matings = sprintf "%.0f", ( $mating_percentage / 2 ) * $alive;
+# observe last generation
+observePopulation();
+observePhenotypes();
 
+# helper functions --------------------------------------------
+sub observePopulation {
+    @population = ( @males, @females );
+    ( $alive, $dead ) = ( 0, 0 );
+    for my $fly (@population) { $fly->alive ? $alive++ : $dead++ }
+
+    print "-" x 80 . "\n";
     print "F" . $generation . " population: " . scalar(@population) . "\t";
     print "[M/F: " . scalar(@males) . "/" . scalar(@females) . "]\t";
-    print "[alive/dead: " . $alive . "/" . $dead . "]\t";
-    print "[matings: " . $matings . "]\n";
+    print "[alive/dead: " . $alive . "/" . $dead . "]\n";
+}
 
+sub matingInfo {
+    my $matings = sprintf "%.0f", ( $mating_percentage / 2 ) * $alive;
+    print "F" . $generation . " matings: " . $matings . "\n";
     return $matings;
 }
 
@@ -124,8 +132,13 @@ sub observePhenotypes {
     print "\n";
 }
 
-#------------------------------------------------------------------------------------
-# TYPES of Zygosity:
-# Homozygous (same) -> XX WW (red) dominant / XX ww (white) recessive
-# Heterozygous (different) -> XX Ww (red)
-# Hemizygous (one missing) -> XY W- (red) dominant / XY w- (white) recessive
+# Notes:
+# 3 TYPES of Zygosity:
+# Homozygous => same
+#   Dominant:  XX WW (red)
+#   Recessive: XX ww (white)
+# Heterozygous => different
+#              XX Ww (red)
+# Hemizygous => missing
+#   Dominant:  XY W- (red)
+#   Recessive: XY w- (white)
