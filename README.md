@@ -20,11 +20,11 @@ This project's aim was to recreate Thomas Morgan's experiments with fruit flies 
 ## About Running/Compiling on Different Operating Systems
 * Linux: This project was developed within a Linux enviroment with the intention of it being ran and or compiled within a Linux enviroment. Therefore, there should be no problem running and or compiling assuming the Compilation Requirements (listed down below) are met. Perl is natively installed in most popular Linux distributions.
 
-* Windows: There is no native support for the Perl on Windows so you will need to install a Perl package in order to run and or compile this project. One such option is Strawberry Perl, which can be found at http://www.strawberryperl.com/. Other options involve downloading Microsoft Visual Studio which has a native Perl compiler and RTE.
+* Windows: There is no native support for the Perl on Windows so you will need to install a Perl package in order to run and or compile this project. One such option is [Strawberry Perl](http://www.strawberryperl.com/). Other options involve downloading Microsoft Visual Studio which has a native Perl compiler and RTE.
 
 * OSX: This project can be ran natively on this operating system as a Perl compiler is included natively. Please open up a Terminal window and navigate to the folder that contains your project. From there, you can execute the "main.pl" file in the terminal to begin the runtime of this project.
 
-## How to use
+## How to Use
 To use this experiment project, you must:
  1. Upon execution of the program, you will be required to enter the percentage of the initial population of female flies that carry the 'mutant white eyes' phenotype. Once that value (between 0 and 100%) is input, press the 'enter/return' key on your keyboard to continue.
  2. Next, you will be asked to enter the percentage of the initial population of maile flies that carry the 'mutant white eyes' phenotype. Once that value (between 0 and 100%) is input, press the 'enter/return' key on your keyboard to continue.
@@ -59,5 +59,5 @@ Observed phenotypes:
 
 ## Acknowledgements
 
-* Perl Code Author & Project Lead: Jacob Hochstetler
-* ReadMe Author: Yale Empie
+* Perl Code Author & Project Lead: **Jacob Hochstetler**
+* ReadMe Author: **Yale Empie**
