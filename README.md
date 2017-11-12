@@ -1,4 +1,4 @@
-# CSCE5810.001 - Group Project for UNT CSCE 5810.001
+# CSCE5810.001 - Group Project for UNT CSCE 4810.001 / 5810.001
 
 This project's aim was to recreate Thomas Morgan's experiments with fruit flies by tracking genetic traits across generations. Due to memory limitations, we have limited the amount of fruit fly generations that will be executed. This project will track the following two traits:
  
