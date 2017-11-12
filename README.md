@@ -39,6 +39,23 @@ To use this experiment project, you must:
 | vW | Short Vestigial Wings (Recessive) / Red Eyes (Dominant) |
 | vw | Short Vestigial Wings (Recessive) / White Eyes (Recessive) |
 
+## Example Output
+
+```
+F2 population: 2016    [M/F: 998/1018]    [alive/dead: 1947/69]
+F2 matings: 243
+Observed phenotypes:
+      Males: [VW: 1]    [vW: 935]    [vw: 62]    
+    Females: [VW: 3]    [vW: 982]    [vw: 33]
+```
+
+## Glossary of Terms
+| Term | Description |
+| --- | --- |
+| Phenotype | Physical characteristics of an organism that are dependent upon which genes are dominant and which are recessive. |
+| Vestigial | An organ or part of a body that is degenrate or has become functionless over the course of evolution. |
+
+
 
 ## Acknowledgements
 
