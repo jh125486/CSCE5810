@@ -3,8 +3,6 @@ use strict;
 use warnings FATAL => 'all';
 srand(time);
 
-use Data::Dumper;
-
 use constant {
     MAX_LIFE => 3,
     MAX_EGGS => 500,
