@@ -59,6 +59,5 @@ Observed phenotypes:
 
 ## Acknowledgements
 
-Perl Code Author & Project Lead: Jacob Hochstetler
-
-ReadMe Author: Yale Empie
+* Perl Code Author & Project Lead: Jacob Hochstetler
+* ReadMe Author: Yale Empie
