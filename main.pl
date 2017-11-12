@@ -3,67 +3,129 @@ use strict;
 use warnings;
 use Fly;
 use Allele;
-use Gene;
-use Chromosome;
-
-# Flies are immediately sexual mature
-# Flies can live a maximum of Fly::MAX_LIFE generations
 
 use constant {
-    MAX_GENERATIONS => 5,
-    POPULATION_PERCENTAGE_THAT_MATES => 0.8,
+    F0_POPULATION   => 20,
+    MAX_GENERATIONS => 2,
 };
 
-my $red_eye_traitX = Allele->new("eye color", "W", "red", Chromosome::X, Allele::DOMINANT);
-my $white_eye_traitX = Allele->new("eye color", "w", "white", Chromosome::X, Allele::RECESSIVE);
+# Genes for eyes and wings
+my $red_eyes    = Allele->new( "W", "red",       Allele::DOMINANT );
+my $white_eyes  = Allele->new( "w", "white",     Allele::RECESSIVE );
+my $long_wings  = Allele->new( "V", "long",      Allele::DOMINANT );
+my $short_wings = Allele->new( "v", "vestigial", Allele::RECESSIVE );
 
-my $eye_gene_homozygous_dominant = Gene->new("Eye color", $red_eye_traitX, $red_eye_traitX);
-my $eye_gene_homozygous_recessive = Gene->new("Eye color", $white_eye_traitX, $white_eye_traitX);
-my $eye_gene_heterozygous = Gene->new("Eye color", $red_eye_traitX, $white_eye_traitX);
-my $eye_gene_hemizygous_dominant = Gene->new("Eye color", $red_eye_traitX);
-my $eye_gene_hemizygous_recessive = Gene->new("Eye color", $white_eye_traitX);
+my (@population, @males, @females);
 
-$eye_gene_homozygous_dominant->printInfo;
-$eye_gene_homozygous_recessive->printInfo;
-$eye_gene_heterozygous->printInfo;
-$eye_gene_hemizygous_dominant->printInfo;
-$eye_gene_hemizygous_recessive->printInfo;
-
-my $fly1 = Fly->new(genes=>[ $eye_gene_homozygous_dominant ]);
-my $fly2 = Fly->new(genes=>[ $eye_gene_hemizygous_dominant ]);
-
-$fly1->printInfo;
-$fly2->printInfo;
-
-if ($fly1->compatible($fly2)) {
-    print "Mated 1 & 2\n";
-    my $fly3 = Fly->new(parent1 => $fly1, parent2 => $fly2);
-    $fly3->printInfo;
-}
-$fly1->age;
-$fly2->age;
-if ($fly1->compatible($fly2)) {
-    print "Mated 1 & 2\n";
-    my $fly3 = Fly->new(parent1 => $fly1, parent2 => $fly2);
-    $fly3->printInfo;
+# create initial population, 50% chance of male or female
+for ( my $c = 0 ; $c < F0_POPULATION ; $c++ ) {
+    int rand(2) ? push( @males,   Fly->new( 0, 1 ) ) : push( @females, Fly->new( 0, 0 ) );
 }
 
-$fly1->printInfo;
+print "-- Initial population: " . F0_POPULATION . " flies [M/F: " . scalar(@males) . "/" . scalar(@females) ."] --\n";
 
+print "Enter percentage of female flies with mutant white eyes (phenotype) [50% chance of recessive carrier]: ";
+my $white_eye_females = ( <STDIN> / 100 ) * scalar(@females);
 
-# Generate N number of flies -> percentage of Genes given on command line input
-# for 1 -> MAX_GENERATIONS
-# while $matings < PERCENTAGE_OF_POPULATION
-    # START NEW GENERATION
-        # choose two random flies
-            # must be compatible
-            # -> mating produces M number of flies in matrix percentages
-        # go through all flies and $fly->age
-        # keep track of genotype/phenotype percentages for this generation
-        # keep track of flies alive, flies born
+print "Enter percentage of male flies with mutant white eyes (phenotype): ";
+my $white_eye_males = ( <STDIN> / 100 ) * scalar(@males);
+
+print "Enter percentage of flies with mutant vestigial wings (phenotype) [50% chance of recessive carrier]: ";
+my $short_wing_flies = ( <STDIN> / 100 ) * F0_POPULATION;
+print "Each mating produces between " . Fly::MAX_EGGS . " and " . Fly::MIN_EGGS . "larvae\n";
+print "Larvae hatch during the same generation and are sexual mature the next generation.\n";
+print "Each egg has 50% chance of becoming male or female.\n";
+print "Flies can live a maximum of " . Fly::MAX_LIFE . " generations.\n";
+print "Enter percentage of population that mates during a generation: ";
+my $mating_percentage = ( <STDIN> / 100 );
+
+for ( my $c = 0 ; $c < $white_eye_females ; $c++ ) {
+    $females[$c]->{_allosomes} = [ $white_eyes, $white_eyes ];
+}
+for ( my $c = $white_eye_females ; $c < scalar(@females) ; $c++ ) {
+
+    # 50% chance of being a recessive carrier
+    $females[$c]->{_allosomes} =
+      [ $red_eyes, int rand(2) ? $red_eyes : $white_eyes ];
+}
+
+for ( my $c = 0 ; $c < $white_eye_males ; $c++ ) {
+    $males[$c]->{_allosomes} = [$white_eyes];
+}
+for ( my $c = $white_eye_males ; $c < scalar(@males) ; $c++ ) {
+    $males[$c]->{_allosomes} = [$red_eyes];
+}
+
+my @flies = sort { $a->id <=> $b->id } ( @males, @females );
+for ( my $c = 0 ; $c < $short_wing_flies ; $c++ ) {
+    $flies[$c]->{_autosomes} = [ $short_wings, $short_wings ];
+}
+for ( my $c = $short_wing_flies ; $c < scalar(@flies) ; $c++ ) {
+    $flies[$c]->{_autosomes} =
+      [ $long_wings, int rand(2) ? $long_wings : $short_wings ];
+}
+
+my $generation = 0;
+for ( ; $generation <= MAX_GENERATIONS ; $generation++ ) {
+    print "-" x 80 . "\n";
+    @population = ( @males, @females );
+    my $matings = populationInfo();
+
+    for ( my $c = $matings ; $c > 0 ; $c-- ) {
+        my Fly $male = @males[ int rand( scalar(@males) ) ];
+        my Fly $female = @females[ int rand( scalar(@females) ) ];
+
+        # guard clause against dead flies
+        if ( !$male->compatible($female) ) { next }
+
+        my @larvae = $male->mate($female);
+        foreach my $fly (@larvae) { $fly->{_male} ? push( @males, $fly ) : push( @females, $fly ) }
+    }
+
+    for my $fly (@population) { $fly->age }
+
+    observePhenotypes();
+}
+
+sub populationInfo {
+    my ( $alive, $dead ) = ( 0, 0 );
+    for my $fly (@population) { $fly->alive ? $alive++ : $dead++ }
+    my $matings = sprintf "%.0f", ( $mating_percentage / 2 ) * $alive;
+
+    print "F" . $generation . " population: " . scalar(@population) . "\t";
+    print "[M/F: " . scalar(@males) . "/" . scalar(@females) . "]\t";
+    print "[alive/dead: " . $alive . "/" . $dead . "]\t";
+    print "[matings: " . $matings . "]\n";
+
+    return $matings;
+}
+
+sub observePhenotypes {
+    print "Observed phenotypes:\n";
+    my ( %male_traits, %female_traits );
+
+    foreach my $male   (@males)   { $male_traits{ $male->phenotype }++ }
+    foreach my $female (@females) { $female_traits{ $female->phenotype }++ }
+
+    my %set;
+    @set{ ( keys %male_traits, keys %female_traits ) } = ();
+    my @traits = sort keys %set;
+
+    print "\t  Males: ";
+    foreach my $trait (@traits) {
+        print "[" . $trait . ": " . (exists $male_traits{$trait} ? $male_traits{$trait} : "0") . "]\t";
+    }
+    print "\n";
+
+    print "\tFemales: ";
+    foreach my $trait (@traits) {
+        print "[" . $trait . ": " . (exists $female_traits{$trait} ? $female_traits{$trait} : "0") . "]\t";
+    }
+    print "\n";
+}
 
 #------------------------------------------------------------------------------------
 # TYPES of Zygosity:
-# Homozygous (same) -> XX WW (red) dominant, XX ww (white) recessive
+# Homozygous (same) -> XX WW (red) dominant / XX ww (white) recessive
 # Heterozygous (different) -> XX Ww (red)
-# Hemizygous (one missing) -> XY W- (red) dominant, XY w- (white) recessive
+# Hemizygous (one missing) -> XY W- (red) dominant / XY w- (white) recessive
