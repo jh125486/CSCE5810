@@ -18,7 +18,7 @@ sub mate {
       [ $male->generation > $female->generation ] + 1;
 
     my @larvae;
-    for (my $c=0; $c <= rand( MAX_EGGS-MIN_EGGS ) + MIN_EGGS; $c++) {
+    for (my $c=0; $c <= rand( MAX_EGGS - MIN_EGGS ) + MIN_EGGS; $c++) {
         my $gender_male =  int rand(2); # 50/50 chance male/female
         my $larva = Fly->new($generation, $gender_male);
 
